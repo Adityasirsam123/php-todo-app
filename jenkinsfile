@@ -1,0 +1,91 @@
+pipeline {
+  agent any
+
+  environment {
+    DOCKER_IMAGE = "aadityasirsam/phpapp-devops-project1_php12:${BUILD_NUMBER}"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git branch: 'staging', url: 'https://gitlab.com/sirsamaditya004/phpapp-devops-project1.git'
+      }
+    }
+
+    stage('SonarQube Code Scan') {
+      steps {
+        withSonarQubeEnv('sonar') {
+          sh '''
+            sonar-scanner \
+              -Dsonar.projectKey=phpapp-devops-project1 \
+              -Dsonar.projectName=phpapp-devops-project1 \
+              -Dsonar.sources=. \
+              -Dsonar.language=php
+          '''
+        }
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        sh 'docker build -t ${DOCKER_IMAGE} .'
+      }
+    }
+
+    stage('Trivy Scan') {
+      steps {
+        sh 'trivy image ${DOCKER_IMAGE}'
+      }
+    }
+
+    stage('Push to Registry') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh '''
+            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+            docker push ${DOCKER_IMAGE}
+          '''
+        }
+      }
+    }
+
+    stage('List Files') {
+      steps {
+        sh 'ls -R'
+      }
+    }
+
+    stage('Update Helm Values in GitLab for ArgoCD') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'gitlab-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+          script {
+            sh """
+              sed -i 's|image:.*|image: "${DOCKER_IMAGE}"|' php-todo-chart/values.yaml
+
+              git config --global user.email "sirsamaditya004@gmail.com"
+              git config --global user.name "sirsamaditya004"
+
+              git remote set-url origin https://${GIT_USER}:${GIT_PASS}@gitlab.com/sirsamaditya004/phpapp-devops-project1.git
+
+              git add php-todo-chart/values.yaml
+              git commit -m "Update staging image to ${DOCKER_IMAGE} [ci skip]" || echo "No changes to commit"
+              git push origin staging
+            """
+          }
+        }
+      }
+    }
+    
+    stage('Notify') {
+      steps {
+        echo "✅ Build and Deploy to Staging Successful. ArgoCD will handle the sync."
+      }
+    }
+  }
+
+  post {
+    failure {
+      echo '❌ Pipeline Failed'
+    }
+  }
+}

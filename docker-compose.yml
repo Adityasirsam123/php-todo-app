@@ -1,0 +1,15 @@
+# for external mysql server
+version: '3.8'
+
+services:
+  php:
+    build: .
+    ports:
+      - "2000:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - phpnet
+
+networks:
+  phpnet:

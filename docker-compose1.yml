@@ -1,0 +1,38 @@
+#mysql on same server
+version: '3.8'
+
+services:
+  php:
+    build: .
+    container_name: php-todo-app
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - todonet
+
+  db:
+    image: mysql:5.7
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo
+      MYSQL_USER: todo_user
+      MYSQL_PASSWORD: admin
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./todo.sql:/docker-entrypoint-initdb.d/todo.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - todonet
+
+volumes:
+  mysql_data:
+
+networks:
+  todonet:
+    driver: bridge

@@ -1,0 +1,88 @@
+To install and configure Prometheus and Grafana inside a Kubernetes cluster, the recommended way is to use the Kube-Prometheus Stack maintained by the Prometheus Community via Helm.
+
+Here’s a step-by-step guide to set up Prometheus and Grafana using Helm:
+
+✅ Prerequisites
+A running Kubernetes cluster (Minikube, kind, EKS, etc.)
+
+kubectl configured to access your cluster
+
+Helm installed (v3.x recommended)
+
+🚀 Step 1: Add Helm Repositories
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+🧠 Step 2: Create a Namespace
+
+kubectl create namespace monitoring
+
+📦 Step 3: Install Prometheus and Grafana Using Helm (Kube-Prometheus Stack)
+The kube-prometheus-stack includes:
+
+Prometheus
+
+Alertmanager
+
+Node Exporter
+
+Grafana
+
+kube-state-metrics
+
+etc.
+
+Install:
+helm install prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring
+You can customize values using a values.yaml file if needed.
+
+📍 Step 4: Verify Installation
+
+
+kubectl get all -n monitoring
+Ensure all pods (Prometheus, Grafana, Alertmanager, etc.) are Running.
+
+
+🌐 Step 5: Access Grafana and Prometheus Dashboards
+Option 1: Port Forward (For Local Access)
+Grafana:
+
+kubectl port-forward svc/prometheus-stack-grafana -n monitoring 3000:80
+Access Grafana: http://localhost:3000
+
+Default credentials:
+
+Username: admin
+
+Password: Run the command:
+
+
+kubectl get secret prometheus-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+Prometheus:
+
+
+kubectl port-forward svc/prometheus-stack-prometheus -n monitoring 9090:9090
+Access Prometheus: http://localhost:9090
+
+📊 Step 6: Configure Grafana Dashboards
+Login to Grafana
+
+Add Prometheus as a Data Source (should be auto-added by default)
+
+Import dashboards using Grafana dashboard IDs (like Kubernetes Cluster Monitoring: 315 or 1860)
+
+🧰 Optional: Customize Configuration
+If you want to customize alert rules, scrape configs, or persistence:
+
+Create a values.yaml file.
+
+Modify and install using:
+
+
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring -f values.yaml
+📤 Uninstall (If Needed)
+
+helm uninstall prometheus-stack -n monitoring
+kubectl delete namespace monitoring

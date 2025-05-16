@@ -1,0 +1,35 @@
+sudo apt update
+    2  sudo apt install apache2 mysql-server php libapache2-mod-php php-mysql unzip -y
+    3  ls
+    4  cd /var/www/html
+    5  ls
+    6  sudo rm index.html
+    7  sudo git clone https://github.com/Adityasirsam123/Todo-list-with-php.git
+    8  ls
+    9  sudo mv Todo-list-with-php/* .
+   10  ls
+   11  sudo rm -r Todo-list-with-php
+   12  ;l
+   13  ls
+   14  vim todo.sql
+   15  sudo mysql
+   16  mysql -u root todo < todo.sql
+   17  sudo mysql -u root todo < todo.sql
+   18  sudo chown -R www-data:www-data /var/www/html
+   19  sudo chmod -R 755 /var/www/html
+   20  sudo systemctl restart apache2
+   21  cat todo.sql
+   22  sudo tail -n 50 /var/log/apache2/error.log
+   23  sudo mysql -u root -p
+   24  cat todo.sql
+   25  vim db.php
+   26  sudo chmod 777 db.php
+   27  vim db.php
+   28  sudo systemctl restart apache2
+   29  sudo mysql -u root -p
+   30  vim db.php
+   31  cat todo.sql
+   32  vim todo.sql
+   33  sudo systemctl restart apache2
+   34  history
+ubuntu@ip-172-31-0-231:/var/www/html$ 
