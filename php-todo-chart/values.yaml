@@ -13,9 +13,9 @@ image: "aadityasirsam/phpapp-devops-project1_php12:26"
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 mysql:
-  host: "15.206.187.9 "
-  user: "todo_user"
-  password: "admin"
+  host: "10.0.1.252"
+  user: "aasoka_user"
+  password: "Admin@123#"
   database: "todo"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
